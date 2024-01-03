@@ -1,0 +1,66 @@
+﻿@model PGPInformation.Models.SubmitViewModel
+@using Org.BouncyCastle.Bcpg.OpenPgp;
+
+@{
+    ViewData["Title"] = "Inspect Public PGP Key";
+}
+
+<h3>Inspect Public PGP Key</h3>
+
+@{
+
+    if (ViewData.ContainsKey("Message"))
+    {
+        <p>Exception: @ViewData["Message"]</p>
+    }
+
+    if (ViewData.ContainsKey("PublicKeyList"))
+    {
+
+        List<PgpPublicKey> publicKeyList = ViewData["PublicKeyList"] as List<PgpPublicKey> ?? new List<PgpPublicKey>();
+
+        foreach (PgpPublicKey publicKey in publicKeyList)
+        {
+            <div class="m-2 p-2" style="";>
+
+                <p class="m-0 p-0">KeyID: @publicKey.KeyId</p>
+                <p class="m-0 p-0">UserID Count: @publicKey.GetUserIds().Count()</p>
+         
+                @foreach (string ids in publicKey.GetUserIds())
+                {
+                    <p class="m-0 p-0">UserID: @ids</p>
+                }
+
+                <p class="m-0 p-0">Algorithm: @publicKey.Algorithm</p>
+                <p class="m-0 p-0">CreationTime: @publicKey.CreationTime</p>
+                <p class="m-0 p-0">BitStrenght: @publicKey.BitStrength</p>
+                <p class="m-0 p-0">IsEncryptionKey: @publicKey.IsEncryptionKey</p>
+                <p class="m-0 p-0">IsMasterKey: @publicKey.IsMasterKey</p>
+                <p class="m-0 p-0">Fingerprint: @BitConverter.ToString(publicKey.GetFingerprint()).Replace("-","")</p>
+                <p class="m-0 p-0">Version: @publicKey.Version</p>
+                <p class="m-0 p-0">Revoked: @publicKey.IsRevoked()</p>
+
+            </div>
+        }
+
+    }
+}
+
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="InspectPublicKey">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">         
+                @Html.EditorFor(m => m.Input, additionalViewData: new { htmlAttributes = new { @class = "form-control m-2 p-2", @style="min-height: 75%; min-height: 300px; min-width: 75%;" }})
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Inspect" class="btn btn-primary m-2 p-2" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
